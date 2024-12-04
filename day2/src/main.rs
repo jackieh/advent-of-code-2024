@@ -32,7 +32,7 @@ fn part2(reports: &[Vec<u32>]) -> u32 {
 
         let failures = report
             .iter()
-            .tuple_windows::<(_, _)>()
+            .tuple_windows()
             .enumerate()
             .filter(|(_, (&left, &right))| !is_safe(left, right))
             .collect::<Vec<_>>();
