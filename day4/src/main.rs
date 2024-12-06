@@ -17,17 +17,15 @@ fn part1(grid: &Array2<char>) -> u32 {
                 false
             }
             'M' => {
-                *state = match state {
-                    Some('X') => Some('M'),
-                    _ => None,
-                };
+                if let Some('X') = state.take() {
+                    *state = Some('M');
+                }
                 false
             }
             'A' => {
-                *state = match state {
-                    Some('M') => Some('A'),
-                    _ => None,
-                };
+                if let Some('M') = state.take() {
+                    *state = Some('A');
+                }
                 false
             }
             'S' => {
