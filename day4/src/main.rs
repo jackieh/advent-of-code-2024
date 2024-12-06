@@ -11,35 +11,32 @@ fn part1(grid: &Array2<char>) -> u32 {
     let (num_rows, num_cols) = grid.dim();
 
     fn find_xmas(state: &mut Option<char>, c: &char) -> Option<u32> {
-        match c {
+        let found_xmas = match c {
             'X' => {
                 *state = Some('X');
-                Some(0)
+                false
             }
             'M' => {
                 *state = match state {
                     Some('X') => Some('M'),
                     _ => None,
                 };
-                Some(0)
+                false
             }
             'A' => {
                 *state = match state {
                     Some('M') => Some('A'),
                     _ => None,
                 };
-                Some(0)
+                false
             }
             'S' => {
-                let count = match state {
-                    Some('A') => 1,
-                    _ => 0,
-                };
-                state.take();
-                Some(count)
+                matches!(state.take(), Some('A'))
             }
-            _ => Some(0),
-        }
+            _ => false,
+        };
+
+        Some(found_xmas as u32)
     }
 
     let axis_count = chain!(grid.rows().into_iter(), grid.columns().into_iter())
