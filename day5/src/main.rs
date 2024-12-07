@@ -41,6 +41,28 @@ impl Iterator for RulesLoader<'_> {
         }
     }
 }
+struct UpdatesLoader<'a> {
+    lines: &'a mut Box<dyn Iterator<Item = String>>,
+}
+
+impl<'a> UpdatesLoader<'a> {
+    fn new(lines: &'a mut Box<dyn Iterator<Item = String>>) -> Self {
+        Self { lines }
+    }
+}
+
+impl Iterator for UpdatesLoader<'_> {
+    type Item = Vec<u32>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.lines.next().map(|line| {
+            line.split_terminator(',')
+                .map(str::parse::<u32>)
+                .map(Result::unwrap)
+                .collect::<Vec<_>>()
+        })
+    }
+}
 
 fn build_before_rules(rules: &[(u32, u32)]) -> HashMap<u32, HashSet<u32>> {
     let mut result: HashMap<u32, HashSet<u32>> = HashMap::new();
@@ -59,13 +81,13 @@ fn build_after_rules(rules: &[(u32, u32)]) -> HashMap<u32, HashSet<u32>> {
 }
 
 fn has_correct_ordering(pages: &[u32], before_rules: &HashMap<u32, HashSet<u32>>) -> bool {
-    let mut printed: HashSet<u32> = HashSet::new();
+    let mut printed = HashSet::new();
     pages
         .iter()
         .try_for_each(|page| {
             if let Some(after) = before_rules.get(page) {
                 if printed.intersection(after).next().is_some() {
-                    return ControlFlow::Break(page);
+                    return ControlFlow::Break(());
                 }
             }
             printed.insert(*page);
@@ -102,11 +124,8 @@ fn part2(rules: &[(u32, u32)], updates: &[Vec<u32>]) -> u32 {
 
     updates
         .iter()
-        .filter_map(|pages| {
-            if has_correct_ordering(pages, &before_rules) {
-                return None;
-            }
-
+        .filter(|pages| !has_correct_ordering(pages, &before_rules))
+        .map(|pages| {
             let mut remaining = pages.clone().into_iter().collect::<HashSet<u32>>();
             let mut ordered = Vec::new();
             while let Some(&target) = remaining.iter().next() {
@@ -114,8 +133,7 @@ fn part2(rules: &[(u32, u32)], updates: &[Vec<u32>]) -> u32 {
                 ordered.push(leaf);
                 remaining.remove(&leaf);
             }
-
-            Some(ordered.as_slice().middle().unwrap().to_owned())
+            ordered.as_slice().middle().unwrap().to_owned()
         })
         .sum::<u32>()
 }
@@ -127,14 +145,8 @@ fn main() {
     let mut lines: Box<dyn Iterator<Item = String>> = Box::new(lines);
     let rules_loader = RulesLoader::new(&mut lines);
     let rules = rules_loader.collect::<Vec<_>>();
-    let updates = lines
-        .map(|line| {
-            line.split_terminator(',')
-                .map(str::parse::<u32>)
-                .map(Result::unwrap)
-                .collect::<Vec<_>>()
-        })
-        .collect::<Vec<_>>();
+    let updates_loader = UpdatesLoader::new(&mut lines);
+    let updates = updates_loader.collect::<Vec<_>>();
 
     println!("Part 1: {}", part1(&rules, &updates));
     println!("Part 2: {}", part2(&rules, &updates));
