@@ -94,10 +94,8 @@ impl Map {
 
     fn init_steps_east(grid: &Array2<char>, steps: &mut Array2<Step>, row: usize) {
         let (_, num_cols) = grid.dim();
-        let mut next_position;
-        let mut has_obstacle;
-        next_position = Position::new(row, num_cols - 1, Direction::South);
-        has_obstacle = false;
+        let mut next_position = Position::new(row, num_cols - 1, Direction::South);
+        let mut has_obstacle = false;
         for col in (0..num_cols).rev() {
             if grid[[row, col]] == '#' {
                 next_position = Position::new(row, col - 1, Direction::South);
