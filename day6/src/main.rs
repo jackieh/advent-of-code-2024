@@ -271,7 +271,7 @@ impl Map {
 
 fn part1(grid: &Array2<char>) -> usize {
     let mut map = Map::build(grid.clone()).unwrap();
-    while let ControlFlow::Continue(_) = map.update() {}
+    while map.update().is_continue() {}
     let Map { grid, .. } = map;
     grid.into_iter().filter(|&c| c == '_').count()
 }
@@ -280,8 +280,7 @@ fn part2(grid: &Array2<char>) -> usize {
     let (num_rows, num_cols) = grid.dim();
     let mut map = Map::build(grid.clone()).unwrap();
     let (start_row, start_col) = (map.current_position.row, map.current_position.col);
-
-    while let ControlFlow::Continue(_) = map.update() {}
+    while map.update().is_continue() {}
 
     let default_visited = (0..num_rows)
         .flat_map(|r| {
