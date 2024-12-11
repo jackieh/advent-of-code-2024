@@ -3,12 +3,13 @@ use std::{
     io::{BufRead, BufReader},
 };
 
+use criterion::{criterion_group, criterion_main, Criterion};
 use ndarray::Array2;
 
-use day6::{part1, part2};
+use day6::part2;
 
-fn main() {
-    let file = File::open("day6/data/input.txt").unwrap();
+fn criterion_benchmark(c: &mut Criterion) {
+    let file = File::open("data/input.txt").unwrap();
     let reader = BufReader::new(file);
     let rows = reader.lines().map_while(Result::ok).collect::<Vec<_>>();
     let num_rows = rows.len();
@@ -16,6 +17,8 @@ fn main() {
     let vec = rows.concat().chars().collect::<Vec<_>>();
     let grid = Array2::<char>::from_shape_vec((num_rows, num_cols), vec).unwrap();
 
-    println!("Part 1: {}", part1(&grid));
-    println!("Part 2: {}", part2(&grid));
+    c.bench_function("part 2", |b| b.iter(|| part2(&grid)));
 }
+
+criterion_group!(benches, criterion_benchmark);
+criterion_main!(benches);

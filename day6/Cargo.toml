@@ -6,3 +6,10 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.94"
 ndarray = "0.16.1"
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+name = "part2"
+harness = false
